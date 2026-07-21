@@ -3,7 +3,6 @@ import yfinance as yf
 import matplotlib.pyplot as plt
 
 st.title("📈 Global Markets Analytics Dashboard")
-
 st.write("Analyze real stock market data using Python")
 
 stock_symbol = st.selectbox(
@@ -13,7 +12,6 @@ stock_symbol = st.selectbox(
 
 try:
     stock = yf.Ticker(stock_symbol)
-
     data = stock.history(period="1mo")
 
     if data.empty:
@@ -34,38 +32,29 @@ try:
 
         col1, col2, col3, col4 = st.columns(4)
 
-        with col1:
-            st.metric("Current Price", f"${latest_price:.2f}")
-
-        with col2:
-            st.metric("Daily Change", f"{daily_change:.2f}%")
-
-        with col3:
-            st.metric("Month High", f"${month_high:.2f}")
-
-        with col4:
-            st.metric("Month Low", f"${month_low:.2f}")
+        col1.metric("Current Price", f"${latest_price:.2f}")
+        col2.metric("Daily Change", f"{daily_change:.2f}%")
+        col3.metric("Month High", f"${month_high:.2f}")
+        col4.metric("Month Low", f"${month_low:.2f}")
 
         st.subheader("📊 Price Trend")
 
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(10, 5))
 
-        ax.plot(
-            data.index,
-            data["Close"],
-            label="Closing Price"
-        )
+        ax.plot(data.index, data["Close"], label="Closing Price", linewidth=2)
+        ax.plot(data.index, data["Moving Average"], label="5-Day Moving Average", linewidth=2)
 
-        ax.plot(
-            data.index,
-            data["Moving Average"],
-            label="5-Day Moving Average"
-        )
-
+        ax.set_xlabel("Date")
+        ax.set_ylabel("Price ($)")
+        ax.set_title(f"{stock_symbol} Stock Price")
+        ax.grid(True)
         ax.legend()
+
+        fig.tight_layout()
 
         st.pyplot(fig)
 
+        plt.close(fig)
+
 except Exception as e:
-    st.error("Dashboard error:")
-    st.write(e)
+    st.exception(e)
